@@ -1,0 +1,22 @@
+---
+
+- name: Setup rbenv
+  hosts: all
+  user: "{{deploy_user}}"
+  sudo: yes
+  roles: 
+    - role: zzet.rbenv
+      rbenv_users: 
+          - "{{deploy_user}}"
+  vars:
+    rbenv:
+      env: user
+      version: v0.4.0
+      ruby_version: 2.2.2
+
+- name: Install Rails
+  hosts: all
+  user: "{{deploy_user}}"
+  roles:
+   - rails
+   

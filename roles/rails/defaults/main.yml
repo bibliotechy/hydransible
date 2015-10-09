@@ -1,0 +1,4 @@
+---
+
+rails_app_name: test-app
+rails_app_path: "/home/{{ansible_ssh_user}}"

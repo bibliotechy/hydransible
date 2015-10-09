@@ -1,0 +1,51 @@
+---
+
+- name: Install rails dependencies
+  yum: 
+    name: "{{item}}"
+    state: present
+  with_items:
+    - git-core
+    - zlib
+    - zlib-devel
+    - gcc-c++
+    - patch
+    - readline
+    - readline-devel
+    - libyaml-devel
+    - libffi-devel
+    - openssl-devel
+    - make
+    - bzip2
+    - autoconf
+    - automake
+    - libtool
+    - bison
+    - curl
+    - sqlite-devel
+    - epel-release
+  sudo: yes
+
+- name: install nodejs for asset pipeline for rails
+  yum:
+    name: nodejs
+    state: present
+  sudo: yes
+
+- name: Install Rails
+  gem: 
+    name: rails
+    version: "{{rails_version}}"
+    state: present
+    user_install: no
+
+- name: create your rails app
+  shell: rails new {{rails_app_name}}
+  args:
+    chdir: "{{rails_app_path}}"
+    creates: "{{rails_app_path}}/{{rails_app_name}}"
+
+- name: Override with custom Gemfile
+  template: 
+    src: Gemfile.j2
+    dest: "{{rails_app_path}}/{{rails_app_name}}/Gemfile"
