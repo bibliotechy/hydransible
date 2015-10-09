@@ -1,0 +1,67 @@
+---
+
+- name: create your rails app
+  shell: rails new {{rails_app_name}}
+  args:
+    chdir: "{{rails_app_path}}"
+    creates: "{{rails_app_path}}/{{rails_app_name}}"
+
+- name: Override with custom Gemfile
+  lineinfile: 
+    line: "gem 'hydra', '9.1.0.rc1'"
+    dest: "{{rails_app_path}}/{{rails_app_name}}/Gemfile"
+    regexp: "^gem 'hydra'"
+
+- name: Bundle install your new app
+  shell: 
+    bundle install
+  args:
+    chdir: "{{rails_app_path}}/{{rails_app_name}}/"
+  register: bundled
+  changed_when: "'Installing' in bundled.stdout"
+
+- name: Generate the hydra scaffold
+  shell: 
+    "rails generate hydra:install"
+  args:
+    chdir: "{{rails_app_path}}/{{rails_app_name}}/"
+    creates: "{{rails_app_path}}/{{rails_app_name}}/solr_conf/"
+
+- name: install Jetty deps
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - curl
+    - java-1.8.0-openjdk
+    - unzip
+  sudo: yes
+
+- name: Install hydra jetty
+  shell: 
+    "rails g hydra:jetty"
+  args:
+    chdir: "{{rails_app_path}}/{{rails_app_name}}/"
+    creates: "{{rails_app_path}}/{{rails_app_name}}/jetty"
+
+- name: Set up the jetty config
+  shell:
+    "rake jetty:config"
+  args:
+    chdir: "{{rails_app_path}}/{{rails_app_name}}/"
+    creates: "jetty/solr/development-core/conf/"
+
+- name: Check if jetty isrunning
+  shell:
+    "rake jetty:status"
+  args:
+    chdir: "{{rails_app_path}}/{{rails_app_name}}/"
+  register: jetty_started
+  changed_when: False
+
+- name: Start jetty
+  shell:
+    "rake jetty:start"
+  args:
+    chdir: "{{rails_app_path}}/{{rails_app_name}}/"
+  when: "'Not running' in jetty_started.stdout"

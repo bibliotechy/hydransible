@@ -39,13 +39,4 @@
     state: present
     user_install: no
 
-- name: create your rails app
-  shell: rails new {{rails_app_name}}
-  args:
-    chdir: "{{rails_app_path}}"
-    creates: "{{rails_app_path}}/{{rails_app_name}}"
 
-- name: Override with custom Gemfile
-  template: 
-    src: Gemfile.j2
-    dest: "{{rails_app_path}}/{{rails_app_name}}/Gemfile"

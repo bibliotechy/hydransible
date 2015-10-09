@@ -1,0 +1,4 @@
+---
+# defaults file for hydra
+
+rails_app_path: "/home/{{ansible_ssh_user}}"

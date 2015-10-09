@@ -19,4 +19,10 @@
   user: "{{deploy_user}}"
   roles:
    - rails
+
+- name: Do the hydra things
+  hosts: all
+  user: "{{deploy_user}}"
+  roles:
+   - hydra-rails
    
